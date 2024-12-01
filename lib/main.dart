@@ -43,11 +43,14 @@ class _TranslatorScrState extends State<TranslatorScr> {
   String _translatText = ''; // Переменная для хранения переведенного текста
   bool _isRussToMansi = true; // Флаг для определения направления перевода
 
+
+
   void _translate() async {
     final dbHelper = DbHelper(); // иниуиализация помощника для работы с бд
     final sourceText = _controller.text; // получение текста из поля ввода
     final translations = await dbHelper.getTranslation(sourceText, _isRussToMansi); // Запрос перевода из бд
-
+    final inputText = _controller.text;
+    final translation = await DbHelper().translatePhrase(inputText, true);
     if (translations.isNotEmpty) {
       setState(() {
         _translatText = translations.first[_isRussToMansi ? 'mansian' : 'russian']; // установка переведенонго текста
@@ -80,15 +83,15 @@ class _TranslatorScrState extends State<TranslatorScr> {
         title: Text(
           'ПЕРЕВОДЧИК ТОЛМАСЬ', // Заголовок
           style: GoogleFonts.kellySlab( // Стиль заголовка( библиотека гугла)
-            textStyle: TextStyle(color: Colors.white, letterSpacing: 1),
+            textStyle: TextStyle(color: Colors.white, letterSpacing: 1.5),
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.green[800], // Цвет шапки
-        elevation: 5.0, // тень
+        backgroundColor: Colors.green[700], // Цвет шапки
+        elevation: 10.0, // тень
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),            // Закругленные углы шапки
+            bottom: Radius.circular(10),            // Закругленные углы шапки
           ),
         ),
       ),
@@ -96,11 +99,11 @@ class _TranslatorScrState extends State<TranslatorScr> {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/background.png'), // Фон
-            opacity: 0.0,
+            opacity: 0.80,
             fit: BoxFit.cover, // На веесь экран
           ),
         ),
-        padding: const EdgeInsets.all(27.0), // Отступы по краям экрана
+        padding: const EdgeInsets.all(18.0), // Отступы по краям экрана
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch, // Выравнивание дочерних виджетов по ширине
           children: [
@@ -153,9 +156,9 @@ class _TranslatorScrState extends State<TranslatorScr> {
                 ),
               ],
             ),
-            SizedBox(height: 105), // Отступ между элементами.
+            SizedBox(height: 70), // Отступ между элементами.
             Container(
-              height: 110,  // Высота блока ввода текста.
+              height: 120,  // Высота блока ввода текста.
               child: TextField(
                 controller: _controller, // Контроллер для управления вводом текста.
                 maxLines: null, // Неограниченное количество строк.
@@ -168,7 +171,7 @@ class _TranslatorScrState extends State<TranslatorScr> {
                   labelText: _controller.text.isEmpty ? 'Введите текст' : null, // Метка для поля ввода.
                   labelStyle: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w300), // Стиль метки.
                   filled: true, // Заполнение поля цветом.
-                  fillColor: Colors.black54, // Цвет фона поля ввода.
+                  fillColor: Colors.green[700]?.withOpacity(0.5), // Цвет фона поля ввода.
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0), // Закругленные углы рамки.
                     borderSide: BorderSide.none, // Отсутствие рамки.
@@ -181,30 +184,34 @@ class _TranslatorScrState extends State<TranslatorScr> {
                 style: TextStyle(color: Colors.white), // Стиль текста ввода.
               ),
             ),
-            SizedBox(height: 10), // Отступ между элементами.
+            SizedBox(height: 15), // Отступ между элементами.
             ElevatedButton(
               onPressed: _translate, // Функция перевода при нажатии кнопки.
-              child: Text('Перевод', style: GoogleFonts.kellySlab(
-                textStyle: TextStyle(color: Colors.white, letterSpacing: .22,fontSize: 18),),),
+              child:
+              Text('Перевод', style: GoogleFonts.kellySlab(
+                textStyle:
+                TextStyle(color: Colors.white, letterSpacing: .22,fontSize: 19),),),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blue[800],
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                foregroundColor: Colors.white, backgroundColor: Colors.blue[700],
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 13),
                 textStyle: TextStyle(fontSize: 17,fontWeight: FontWeight.w300),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: BorderRadius.circular(70.0),
                 ),
               ),
             ),
-            SizedBox(height: 25),
+
+
+            SizedBox(height: 45),
             Container(
-              height: 150,  // Увеличиваем высоту блока вывода перевода
-              padding: EdgeInsets.all(16),
+              height: 300,  // Увеличиваем высоту блока вывода перевода
+              padding: EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: Colors.green[800]?.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(4.0),
+                color: Colors.green[700]?.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(10.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black26,
+                    color: Colors.black12,
                   ),
                 ],
               ),
@@ -219,7 +226,7 @@ class _TranslatorScrState extends State<TranslatorScr> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.copy, color: Colors.black),
+                    icon: Icon(Icons.copy, color: Colors.black54),
                     alignment: Alignment.topRight,
                     onPressed: _copyTranslText,
                   ),

@@ -37,15 +37,52 @@ class DbHelper {
   }
 
   Future<List<Map<String, dynamic>>> getTranslation(String sourceText, bool isRussToMansi) async {
-    final db = await database; // Получение экземпляра бд
-    final String columnToFind = isRussToMansi ? 'russian' : 'mansian'; // Определение столбца для поиска
-    final String resultColumn = isRussToMansi ? 'mansian' : 'russian'; // Определение столбца для результата
+    final db = await database; // Получаем экземпляр базы данных
+    final String columnToFind = isRussToMansi ? 'russian' : 'mansian'; // Столбец для поиска
+    final String resultColumn = isRussToMansi ? 'mansian' : 'russian'; // Столбец для результата
+
+    List<String> words = sourceText.split(' '); // Разбиваем текст на слова
+
+    // Если введено одно слово
+    if (words.length == 1) {
+      return await db.query(
+        'tableOne',
+        columns: [resultColumn],
+        where: '$columnToFind = ?',
+        whereArgs: [sourceText], // Точное совпадение для одного слова
+      );
+    }
+
+    // Если введено несколько слов
+    String whereClause = '';
+    List<String> whereArgs = [];
+
+    for (int i = 0; i < words.length; i++) {
+      whereClause += '$columnToFind LIKE ?';
+      whereArgs.add('%${words[i]}%');
+
+      if (i < words.length - 1) {
+        whereClause += ' OR '; // Ищем каждое слово через OR
+      }
+    }
 
     return await db.query(
-      'tableOne', // Указываем имя таблицы
-      columns: [resultColumn], // Указываем столбец, который хотим получить
-      where: '$columnToFind = ?', // Условие поискаа
-      whereArgs: [sourceText], // Аргумент для условия поиска
+      'tableOne',
+      columns: [resultColumn],
+      where: whereClause,
+      whereArgs: whereArgs, // Частичные совпадения для нескольких слов
     );
   }
+
+  Future<String> translatePhrase(String sourceText, bool isRussToMansi) async {
+    final results = await getTranslation(sourceText, isRussToMansi);
+
+    if (results.isEmpty) {
+      return "Перевод не найден"; // Если ничего не найдено
+    }
+
+    // Объединяем переводы через пробел
+    return results.map((row) => row.values.first.toString()).join(' ');
+  }
+
 }
